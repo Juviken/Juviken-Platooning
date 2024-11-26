@@ -40,9 +40,9 @@ class DistanceController:
         range_msg.header.stamp = rospy.Time.now()
         range_msg.header.frame_id = "/base_link"
         range_msg.radiation_type = Range.ULTRASOUND
-        range_msg.field_of_view = self.driver.fov
-        range_msg.min_range = self.driver.min_range
-        range_msg.max_range = self.driver.max_range
+        range_msg.field_of_view = self.driver_2.fov
+        range_msg.min_range = self.driver_2.min_range
+        range_msg.max_range = self.driver_2.max_range
         range_msg.range = distance
         return range_msg
 
