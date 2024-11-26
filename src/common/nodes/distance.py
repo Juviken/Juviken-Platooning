@@ -12,9 +12,17 @@ class DistanceController:
         self.__average_distance = 0.0
         self.__readings_per_publish = rospy.get_param("ULTRASONIC_SAMPLES_PER_PUBLISH")
 
-        self.driver = UltrasonicDriver(
-            rospy.get_param("ULTRASONIC_TRIGGER"),
-            rospy.get_param("ULTRASONIC_ECHO"))
+        self.driver_1 = UltrasonicDriver(
+            rospy.get_param("ULTRASONIC_TRIGGER_1"),
+            rospy.get_param("ULTRASONIC_ECHO_1"))
+
+        self.driver_2 = UltrasonicDriver(
+            rospy.get_param("ULTRASONIC_TRIGGER_2"),
+            rospy.get_param("ULTRASONIC_ECHO_2"))
+        
+        self.driver_3 = UltrasonicDriver(
+            rospy.get_param("ULTRASONIC_TRIGGER_3"),
+            rospy.get_param("ULTRASONIC_ECHO_3"))
 
         self.distance_publisher = rospy.Publisher(
             f"{self.__id}/distance",
@@ -45,12 +53,33 @@ class DistanceController:
         self.__current_reading = 0
         self.__average_distance = 0
 
+    def get_selected_sensor_distance(self):
+        """
+        Logic to select which sensor to use for distance readings.
+        """
+        
+        return min(self.driver_1.get_distance(), self.driver_2.get_distance(), self.driver_3.get_distance())
+
+        """
+        sensor_choice = rospy.get_param("SELECT_SENSOR", "2")  # Default to sensor 2 if not set
+
+        if sensor_choice == "1":
+            return self.driver_1.get_distance(), "1"
+        elif sensor_choice == "2":
+            return self.driver_2.get_distance(), "2"
+        elif sensor_choice == "3":
+            return self.driver_3.get_distance(), "3"
+        else:
+            rospy.logwarn("Invalid sensor choice, defaulting to sensor 2.")
+            return self.driver_2.get_distance(), "2"
+        """
+
     def publish_current_distance(self, event):
         """
         Publishes the current distance to the vehicle/distance topic.
         """
         if self.__current_reading < self.__readings_per_publish:
-            self.__average_distance += self.driver.get_distance()
+            self.__average_distance += self.get_selected_sensor_distance()
             self.__current_reading += 1
             return
 
@@ -66,7 +95,9 @@ class DistanceController:
         Stops the distance node.
         """
         self.distance_publisher.unregister()
-        self.driver.cleanup()
+        self.driver_1.cleanup()
+        self.driver_2.cleanup()
+        self.driver_3.cleanup()
 
 
 if __name__ == "__main__":
