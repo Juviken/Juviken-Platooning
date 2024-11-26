@@ -53,33 +53,12 @@ class DistanceController:
         self.__current_reading = 0
         self.__average_distance = 0
 
-    def get_selected_sensor_distance(self):
-        """
-        Logic to select which sensor to use for distance readings.
-        """
-        
-        return min(self.driver_1.get_distance(), self.driver_2.get_distance(), self.driver_3.get_distance())
-
-        """
-        sensor_choice = rospy.get_param("SELECT_SENSOR", "2")  # Default to sensor 2 if not set
-
-        if sensor_choice == "1":
-            return self.driver_1.get_distance(), "1"
-        elif sensor_choice == "2":
-            return self.driver_2.get_distance(), "2"
-        elif sensor_choice == "3":
-            return self.driver_3.get_distance(), "3"
-        else:
-            rospy.logwarn("Invalid sensor choice, defaulting to sensor 2.")
-            return self.driver_2.get_distance(), "2"
-        """
-
     def publish_current_distance(self, event):
         """
         Publishes the current distance to the vehicle/distance topic.
         """
         if self.__current_reading < self.__readings_per_publish:
-            self.__average_distance += self.get_selected_sensor_distance()
+            self.__average_distance += min(self.driver_1.get_distance(), self.driver_2.get_distance(), self.driver_3.get_distance())
             self.__current_reading += 1
             return
 
