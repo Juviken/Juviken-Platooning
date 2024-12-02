@@ -39,12 +39,8 @@
     <param name="VELOCITY_MAX" type="int" value="8" />
 
     <!-- GPIOs BOARD -->
-    <param name="ULTRASONIC_TRIGGER_1" type="int" value="13" />
-    <param name="ULTRASONIC_ECHO_1" type="int" value="11" />
-    <param name="ULTRASONIC_TRIGGER_2" type="int" value="29" />
-    <param name="ULTRASONIC_ECHO_2" type="int" value="31" />
-    <param name="ULTRASONIC_TRIGGER_3" type="int" value="16" />
-    <param name="ULTRASONIC_ECHO_3" type="int" value="15" />
+    <param name="ULTRASONIC_TRIGGER" type="int" value="29" />
+    <param name="ULTRASONIC_ECHO" type="int" value="31" />
 
     <!-- Publisher periods -->
     <param name="DISTANCE_PUBLISH_PERIOD" type="double" value="0.01" />

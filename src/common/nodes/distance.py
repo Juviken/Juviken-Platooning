@@ -12,7 +12,11 @@ class DistanceController:
         self.__average_distance = 0.0
         self.__readings_per_publish = rospy.get_param("ULTRASONIC_SAMPLES_PER_PUBLISH")
 
-        self.driver_1 = UltrasonicDriver(
+        self.driver = UltrasonicDriver( 
+            rospy.get_param("ULTRASONIC_TRIGGER"),
+            rospy.get_param("ULTRASONIC_ECHO")) #ta bort sen 
+
+        """self.driver_1 = UltrasonicDriver(
             rospy.get_param("ULTRASONIC_TRIGGER_1"),
             rospy.get_param("ULTRASONIC_ECHO_1"))
 
@@ -23,6 +27,13 @@ class DistanceController:
         self.driver_3 = UltrasonicDriver(
             rospy.get_param("ULTRASONIC_TRIGGER_3"),
             rospy.get_param("ULTRASONIC_ECHO_3"))
+            
+            <param name="ULTRASONIC_TRIGGER_1" type="int" value="13" />
+    <param name="ULTRASONIC_ECHO_1" type="int" value="11" />
+    <param name="ULTRASONIC_TRIGGER_2" type="int" value="29" />
+    <param name="ULTRASONIC_ECHO_2" type="int" value="31" />
+    <param name="ULTRASONIC_TRIGGER_3" type="int" value="16" />
+    <param name="ULTRASONIC_ECHO_3" type="int" value="15" />"""
 
         self.distance_publisher = rospy.Publisher(
             f"{self.__id}/distance",
@@ -40,9 +51,12 @@ class DistanceController:
         range_msg.header.stamp = rospy.Time.now()
         range_msg.header.frame_id = "/base_link"
         range_msg.radiation_type = Range.ULTRASOUND
-        range_msg.field_of_view = self.driver_2.fov
-        range_msg.min_range = self.driver_2.min_range
-        range_msg.max_range = self.driver_2.max_range
+        range_msg.field_of_view = self.driver.fov
+        range_msg.min_range = self.driver.min_range
+        range_msg.max_range = self.driver.max_range
+        #range_msg.field_of_view = self.driver_2.fov
+        #range_msg.min_range = self.driver_2.min_range
+        #range_msg.max_range = self.driver_2.max_range
         range_msg.range = distance
         return range_msg
 
@@ -58,7 +72,7 @@ class DistanceController:
         Publishes the current distance to the vehicle/distance topic.
         """
         if self.__current_reading < self.__readings_per_publish:
-            self.__average_distance += min(self.driver_1.get_distance(), self.driver_2.get_distance(), self.driver_3.get_distance())
+            self.__average_distance += self.driver.get_distance() #min(self.driver_1.get_distance(), self.driver_2.get_distance(), self.driver_3.get_distance())
             self.__current_reading += 1
             return
 
@@ -74,9 +88,10 @@ class DistanceController:
         Stops the distance node.
         """
         self.distance_publisher.unregister()
-        self.driver_1.cleanup()
-        self.driver_2.cleanup()
-        self.driver_3.cleanup()
+        self.driver.cleanup() #ta bort denna sen
+        #self.driver_1.cleanup()
+        #self.driver_2.cleanup()
+        #self.driver_3.cleanup()
 
 
 if __name__ == "__main__":
