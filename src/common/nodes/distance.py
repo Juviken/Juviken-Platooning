@@ -59,7 +59,7 @@ class DistanceController:
         Publishes the current distance to the vehicle/distance topic.
         """
         if self.__current_reading < self.__readings_per_publish:
-            self.__average_distance += self.driver_2.get_distance() #min(self.driver_1.get_distance(), self.driver_2.get_distance(), self.driver_3.get_distance())
+            self.__average_distance += min(self.driver_1.get_distance(), self.driver_2.get_distance(), self.driver_3.get_distance())
             self.__current_reading += 1
             return
 
