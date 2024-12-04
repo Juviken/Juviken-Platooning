@@ -54,7 +54,7 @@ class DistanceController:
         distance_m = [0, 0, 0]
         driver_distance = [self.driver_1.get_distance(), self.driver_2.get_distance(), self.driver_3.get_distance()]
 
-        for i in range(2):
+        for i in range(3):
 
             if self.__current_reading < self.__readings_per_publish:
                 self.__average_distance += driver_distance[i]
@@ -64,7 +64,7 @@ class DistanceController:
             distance = self.__average_distance / self.__readings_per_publish
             distance_m[i] = distance / 100
 
-        self.distance_publisher.publish(self.create_range_message(distance_m[1]))
+        self.distance_publisher.publish(self.create_range_message(distance_m[2]))
 
         self.__current_reading = 0
         self.__average_distance = 0
