@@ -51,6 +51,7 @@ class DistanceController:
         """
         Publishes the current distance to the vehicle/distance topic.
         """
+        """
         distance_m = [0, 0, 0]
         driver_distance = [self.driver_1.get_distance(), self.driver_2.get_distance(), self.driver_3.get_distance()]
 
@@ -65,9 +66,9 @@ class DistanceController:
             self.__current_reading = 0
             self.__average_distance = 0
 
-        self.distance_publisher.publish(self.create_range_message(min(distance_m[2])))
+        self.distance_publisher.publish(self.create_range_message(min(distance_m[2])))"""
         
-        """distance_m = [0, 0, 0]
+        distance_m = [0, 0, 0]
         driver_distance = [self.driver_1.get_distance(), self.driver_2.get_distance(), self.driver_3.get_distance()]
 
         for i in range(3):
@@ -78,10 +79,10 @@ class DistanceController:
             distance = self.__average_distance / self.__readings_per_publish
             distance_m[i] = distance / 100
 
-        self.distance_publisher.publish(self.create_range_message(distance_m[2]))
+        self.distance_publisher.publish(self.create_range_message(distance_m[0]))
 
         self.__current_reading = 0
-        self.__average_distance = 0"""
+        self.__average_distance = 0
 
     def stop(self):
         """
