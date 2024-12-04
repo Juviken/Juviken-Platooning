@@ -64,7 +64,7 @@ class DistanceController:
             distance = self.__average_distance / self.__readings_per_publish
             distance_m[i] = distance / 100
 
-        self.distance_publisher.publish(self.create_range_message(distance_m[1]))
+        self.distance_publisher.publish(self.create_range_message(distance_m[0]))
 
         self.__current_reading = 0
         self.__average_distance = 0
