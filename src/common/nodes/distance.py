@@ -51,7 +51,7 @@ class DistanceController:
         """
         Publishes the current distance to the vehicle/distance topic.
         """
-        distance_m = [0, 0, 0]
+        distance_m = [2, 2, 2]
         driver_distance = [self.driver_1.get_distance(), self.driver_2.get_distance(), self.driver_3.get_distance()]
 
         for i in range(2):
