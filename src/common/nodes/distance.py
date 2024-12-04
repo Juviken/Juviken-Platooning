@@ -56,10 +56,9 @@ class DistanceController:
 
         for i in range(3):
 
-            if self.__current_reading < self.__readings_per_publish:
+            for j in range(self.__readings_per_publish - 1):
                 self.__average_distance += driver_distance[i]
                 self.__current_reading += 1
-                continue
 
             distance = self.__average_distance / self.__readings_per_publish
             distance_m[i] = distance / 100
