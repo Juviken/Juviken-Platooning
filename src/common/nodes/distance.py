@@ -56,7 +56,7 @@ class DistanceController:
 
         for i in range(3):
 
-            for j in range(self.__readings_per_publish - 1):
+            for j in range(self.__readings_per_publish):
                 self.__average_distance += driver_distance[i]
                 self.__current_reading += 1
 
