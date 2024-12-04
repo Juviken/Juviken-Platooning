@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import rospy
+import time
 
 from sensor_msgs.msg import Range
 
@@ -46,28 +47,26 @@ class DistanceController:
         range_msg.range = distance
         return range_msg
 
-    def reset_reading_state(self):
-        """
-        Resets the current reading state to start a new set of readings.
-        """
-        self.__current_reading = 0
-        self.__average_distance = 0
-
     def publish_current_distance(self, event):
         """
         Publishes the current distance to the vehicle/distance topic.
         """
-        if self.__current_reading < self.__readings_per_publish:
-            self.__average_distance += self.driver_2.get_distance() #min(self.driver_1.get_distance(), self.driver_2.get_distance(), self.driver_3.get_distance())
-            self.__current_reading += 1
-            return
+        distance_m = [0, 0, 0]
+        driver_distance = [self.driver_1.get_distance(), self.driver_2.get_distance(), self.driver_3.get_distance()]
+        for i in range(3):
 
-        distance = self.__average_distance / self.__readings_per_publish
-        distance_m = distance / 100
-        self.distance_publisher.publish(self.create_range_message(distance_m))
+            if self.__current_reading < self.__readings_per_publish:
+                self.__average_distance += driver_distance[i]
+                self.__current_reading += 1
+                return
 
-        # Restore starting reading state
-        self.reset_reading_state()
+            distance = self.__average_distance / self.__readings_per_publish
+            distance_m[i] = distance / 100
+
+            self.__current_reading = 0
+            self.__average_distance = 0
+
+        self.distance_publisher.publish(self.create_range_message(min(distance_m)))
 
     def stop(self):
         """
