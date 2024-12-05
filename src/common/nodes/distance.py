@@ -11,6 +11,7 @@ class DistanceController:
         self.__id = rospy.get_param("VEHICLE_ID")
         self.__current_reading = 0
         self.__average_distance = 0.0
+        self.__distance_m = [0, 0, 0]
         self.__readings_per_publish = rospy.get_param("ULTRASONIC_SAMPLES_PER_PUBLISH")
 
         self.driver_1 = UltrasonicDriver(
@@ -68,7 +69,6 @@ class DistanceController:
 
         self.distance_publisher.publish(self.create_range_message(min(distance_m[2])))"""
         
-        distance_m = [0, 0, 0]
         driver_distance = [self.driver_1.get_distance(), self.driver_2.get_distance(), self.driver_3.get_distance()]
 
         for i in range(3):
@@ -77,9 +77,9 @@ class DistanceController:
                 self.__current_reading += 1
 
             distance = self.__average_distance / self.__readings_per_publish
-            distance_m[i] = distance / 100
+            self.__distance_m[i] = distance / 100
 
-        self.distance_publisher.publish(self.create_range_message(distance_m[0]))
+        self.distance_publisher.publish(self.create_range_message(self.__distance_m[0]))
 
         self.__current_reading = 0
         self.__average_distance = 0
