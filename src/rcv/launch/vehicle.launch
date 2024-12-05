@@ -47,7 +47,7 @@
     <param name="ULTRASONIC_ECHO_3" type="int" value="15" />
 
     <!-- Publisher periods -->
-    <param name="DISTANCE_PUBLISH_PERIOD" type="double" value="0.01" />
+    <param name="DISTANCE_PUBLISH_PERIOD" type="double" value="0.1" />
     <param name="OBJECT_FOLLOWER_PERIOD" type="double" value="0.0167" />
 
     <!-- Ultrasonic node -->

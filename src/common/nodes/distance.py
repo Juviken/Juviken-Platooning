@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import rospy
+import time
 
 from sensor_msgs.msg import Range
 
@@ -10,6 +11,7 @@ class DistanceController:
         self.__id = rospy.get_param("VEHICLE_ID")
         self.__current_reading = 0
         self.__average_distance = 0.0
+        self.__distance_m = [0, 0, 0]
         self.__readings_per_publish = rospy.get_param("ULTRASONIC_SAMPLES_PER_PUBLISH")
 
         self.driver_1 = UltrasonicDriver(
@@ -23,7 +25,6 @@ class DistanceController:
         self.driver_3 = UltrasonicDriver(
             rospy.get_param("ULTRASONIC_TRIGGER_3"),
             rospy.get_param("ULTRASONIC_ECHO_3"))
-        
 
         self.distance_publisher = rospy.Publisher(
             f"{self.__id}/distance",
@@ -47,28 +48,42 @@ class DistanceController:
         range_msg.range = distance
         return range_msg
 
-    def reset_reading_state(self):
-        """
-        Resets the current reading state to start a new set of readings.
-        """
-        self.__current_reading = 0
-        self.__average_distance = 0
-
     def publish_current_distance(self, event):
         """
         Publishes the current distance to the vehicle/distance topic.
         """
-        if self.__current_reading < self.__readings_per_publish:
-            self.__average_distance += min(self.driver_1.get_distance(), self.driver_2.get_distance(), self.driver_3.get_distance())
-            self.__current_reading += 1
-            return
+        """
+        distance_m = [0, 0, 0]
+        driver_distance = [self.driver_1.get_distance(), self.driver_2.get_distance(), self.driver_3.get_distance()]
 
-        distance = self.__average_distance / self.__readings_per_publish
-        distance_m = distance / 100
-        self.distance_publisher.publish(self.create_range_message(distance_m))
+        for i in range(3):
+            if self.__current_reading < self.__readings_per_publish:
+                self.__average_distance += driver_distance[i]
+                self.__current_reading += 1
+                continue  # Exit the function; we need more readings
 
-        # Restore starting reading state
-        self.reset_reading_state()
+            distance_m[i] = (self.__average_distance / self.__readings_per_publish) / 100
+
+            self.__current_reading = 0
+            self.__average_distance = 0
+
+        self.distance_publisher.publish(self.create_range_message(min(distance_m[2])))"""
+        
+        driver_distance = [self.driver_1.get_distance(), self.driver_2.get_distance(), self.driver_3.get_distance()]
+
+        for i in range(3):
+            for j in range(self.__readings_per_publish):
+                self.__average_distance += driver_distance[i]
+                self.__current_reading += 1
+
+            distance = self.__average_distance / self.__readings_per_publish
+            self.__distance_m[i] = distance / 100
+            time.sleep(0.01)
+
+        self.distance_publisher.publish(self.create_range_message(self.__distance_m[1]))
+
+        self.__current_reading = 0
+        self.__average_distance = 0
 
     def stop(self):
         """
