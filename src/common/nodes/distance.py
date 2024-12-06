@@ -59,7 +59,7 @@ class DistanceController:
             self.__average_distance += self.driver_1.get_distance()
             self.__current_reading_1 += 1
             return
-        elif self.current_reading_1 == self.__readings_per_publish:
+        elif self.__current_reading_1 == self.__readings_per_publish:
             distance = self.__average_distance / self.__readings_per_publish
             self.__distance_m[0] = distance / 100
         self.__average_distance = 0
@@ -68,7 +68,7 @@ class DistanceController:
             self.__average_distance += self.driver_2.get_distance()
             self.__current_reading_2 += 1
             return
-        elif self.current_reading_2 == self.__readings_per_publish:
+        elif self.__current_reading_2 == self.__readings_per_publish:
             distance = self.__average_distance / self.__readings_per_publish
             self.__distance_m[1] = distance / 100
         self.__average_distance = 0
@@ -77,7 +77,7 @@ class DistanceController:
             self.__average_distance += self.driver_3.get_distance()
             self.__current_reading_3 += 1
             return
-        elif self.current_reading_3 == self.__readings_per_publish:
+        elif self.__current_reading_3 == self.__readings_per_publish:
             distance = self.__average_distance / self.__readings_per_publish
             self.__distance_m[2] = distance / 100
         self.__average_distance = 0
