@@ -12,6 +12,7 @@ class DistanceController:
         self.__current_reading_1 = 0
         self.__current_reading_2 = 0
         self.__current_reading_3 = 0
+        self.__average_distance = [0, 0, 0]
         self.__average_distance = 0.0
         self.__distance_m = [0, 0, 0]
         self.__readings_per_publish = rospy.get_param("ULTRASONIC_SAMPLES_PER_PUBLISH")
@@ -56,37 +57,36 @@ class DistanceController:
         """
         
         if self.__current_reading_1 < self.__readings_per_publish:
-            self.__average_distance += self.driver_1.get_distance()
+            self.__average_distance[0] += self.driver_1.get_distance()
             self.__current_reading_1 += 1
             return
         elif self.__current_reading_1 == self.__readings_per_publish:
-            distance = self.__average_distance / self.__readings_per_publish
+            distance = self.__average_distance[0] / self.__readings_per_publish
             self.__distance_m[0] = distance / 100
-        self.__average_distance = 0
         
         if self.__current_reading_2 < self.__readings_per_publish:
-            self.__average_distance += self.driver_2.get_distance()
+            self.__average_distance[1] += self.driver_2.get_distance()
             self.__current_reading_2 += 1
             return
         elif self.__current_reading_2 == self.__readings_per_publish:
-            distance = self.__average_distance / self.__readings_per_publish
+            distance = self.__average_distance[1] / self.__readings_per_publish
             self.__distance_m[1] = distance / 100
-        self.__average_distance = 0
         
         if self.__current_reading_3 < self.__readings_per_publish:
-            self.__average_distance += self.driver_3.get_distance()
+            self.__average_distance[2] += self.driver_3.get_distance()
             self.__current_reading_3 += 1
             return
         elif self.__current_reading_3 == self.__readings_per_publish:
-            distance = self.__average_distance / self.__readings_per_publish
+            distance = self.__average_distance[2] / self.__readings_per_publish
             self.__distance_m[2] = distance / 100
-        self.__average_distance = 0
+        
+        self.distance_publisher.publish(self.create_range_message(self.__distance_m[1]))
+        
+        self.__average_distance = [0, 0, 0]
 
         self.__current_reading_1 = 0
         self.__current_reading_2 = 0
         self.__current_reading_3 = 0
-
-        self.distance_publisher.publish(self.create_range_message(self.__distance_m[1]))
 
     def stop(self):
         """
