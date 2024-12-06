@@ -13,7 +13,6 @@ class DistanceController:
         self.__current_reading_2 = 0
         self.__current_reading_3 = 0
         self.__average_distance = [0, 0, 0]
-        self.__average_distance = 0.0
         self.__distance_m = [0, 0, 0]
         self.__readings_per_publish = rospy.get_param("ULTRASONIC_SAMPLES_PER_PUBLISH")
 
