@@ -86,7 +86,7 @@ class DistanceController:
         self.__current_reading_2 = 0
         self.__current_reading_3 = 0
 
-        self.distance_publisher.publish(self.create_range_message(min(self.__distance_m)))
+        self.distance_publisher.publish(self.create_range_message(self.__distance_m[1]))
 
     def stop(self):
         """
