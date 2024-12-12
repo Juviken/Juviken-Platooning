@@ -17,7 +17,9 @@ class PIDController:
             rospy.get_param("K_PD"),
             self.__period, # FIXME: should this be DISTANCE_PUBLISH_PERIOD?
             rospy.get_param("PID_PMIN"),
-            rospy.get_param("PID_PMAX"))
+            rospy.get_param("PID_PMAX"),
+            rospy.get_param("PID_PMAX_INTEGRAL")
+            )
 
         self.__pid_pwm = PID(
             rospy.get_param("K_SP"),
