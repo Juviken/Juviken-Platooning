@@ -130,23 +130,27 @@ class PIDController:
         # and we have enabled the flag in the launch file.
         if not self.__has_target and self.__stop_vehicle_if_no_target:
             self.__current_pwm = self.__idle
+            rospy.loginfo("No target detected. Stopping vehicle.")
         else:
             distance_error = self.__current_distance - self.__min_distance()
             platoon_control_output = self.__pid_platooning.update(distance_error)
 
-            if platoon_control_output < 0:
+            if platoon_control_output < 0:  # Brake
                 if self.__can_brake:
                     self.__desired_pwm = self.__max_reverse
+                    rospy.loginfo("Braking")
                 else:
-                    self.__desired_pwm = self.__idle
+                    self.__desired_pwm = self.__idle    # Stop
                 self.__can_brake = False
             elif platoon_control_output == 0:
                 self.__desired_pwm = self.__idle
+                rospy.loginfo("Control_output is zero. Idling.")
             else:
                 self.__can_brake = True
                 self.__desired_pwm = max(
                     self.__desired_pwm + platoon_control_output,
                     self.__min_forward)
+                
 
             self.__current_pwm = int(min(
                 max(self.__desired_pwm, self.__max_reverse),
