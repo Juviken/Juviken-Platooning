@@ -107,12 +107,12 @@ def simulate(num_tick, num_vehicles, scenario, type, model, period):
 
 
 def main(argv):
-    num_ticks = 0
-    num_vehicles = 0
-    scenario = 1
-    type = 1
-    model = 1
-    period = tick_in_s
+    num_ticks = 0   # -t <number of ticks>
+    num_vehicles = 0 # -v <number of vehicles>
+    scenario = 1    # -s <scenario>
+    type = 1    # -y <vehicle type>
+    model = 1   # -m <model>
+    period = tick_in_s  # -p <period>
     opts, args = getopt.getopt(argv,"ht:s:v:y:m:p:",["ticks=","scenario=","vehicles=","type=","model=","period="])
     for opt, arg in opts:
         if opt == '-h':
@@ -148,4 +148,5 @@ def main(argv):
 
 
 if __name__ == "__main__":
+    #print("OBS:",sys.argv[1:])
     main(sys.argv[1:])
