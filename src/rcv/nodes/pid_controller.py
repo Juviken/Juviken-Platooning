@@ -136,6 +136,8 @@ class PIDController:
         else:
             distance_error = self.__current_distance - self.__min_distance()
             platoon_control_output = self.__pid_platooning.update(distance_error)
+            rospy.loginfo(f"Distance error: {distance_error}")
+            rospy.loginfo(f"Platoon control output: {platoon_control_output}")
 
             if platoon_control_output < 0:  # Brake
                 if self.__can_brake:
@@ -143,6 +145,7 @@ class PIDController:
                     rospy.loginfo("Braking")
                 else:
                     self.__desired_pwm = self.__idle    # Stop
+                    rospy.loginfo("Cannot brake. Idling.")
                 self.__can_brake = False
             elif platoon_control_output == 0:
                 self.__desired_pwm = self.__idle
@@ -151,7 +154,7 @@ class PIDController:
                 self.__can_brake = True
                 self.__desired_pwm = max(
                     self.__desired_pwm + platoon_control_output,
-                    self.__min_forward)
+                    self.__min_forward) 
                 
 
             self.__current_pwm = int(min(
