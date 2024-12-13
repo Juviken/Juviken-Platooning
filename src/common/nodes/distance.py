@@ -48,18 +48,22 @@ class DistanceController:
         range_msg.range = distance
         return range_msg
 
-    def publish_current_distance(self, event):
+    def publish_current_distance(self, event): #gets called every "DISTANCE_PUBLISH_PERIOD" seconds
         """
         Publishes the current distance to the vehicle/distance topic.
         """
-        if self.__current_reading[0] < self.__readings_per_publish:
+        #collects "readings_per_publish" data samples from first ultrasound sensor
+        if self.__current_reading[0] < self.__readings_per_publish: 
             self.__average_distance[0] += self.driver_1.get_distance()
             self.__current_reading[0] += 1
             return
-        elif self.__current_reading[0] == self.__readings_per_publish:
+        
+        #computes the average over collected data samples and converts to m from cm
+        elif self.__current_reading[0] == self.__readings_per_publish: 
             distance = self.__average_distance[0] / self.__readings_per_publish
             self.__distance_m[0] = distance / 100
         
+        #-----||----- seconds ultrasounds sensor
         if self.__current_reading[1] < self.__readings_per_publish:
             self.__average_distance[1] += self.driver_2.get_distance()
             self.__current_reading[1] += 1
@@ -68,6 +72,7 @@ class DistanceController:
             distance = self.__average_distance[1] / self.__readings_per_publish
             self.__distance_m[1] = distance / 100
         
+        #-----||----- third ultrasounds sensor
         if self.__current_reading[2] < self.__readings_per_publish:
             self.__average_distance[2] += self.driver_3.get_distance()
             self.__current_reading[2] += 1
@@ -76,8 +81,13 @@ class DistanceController:
             distance = self.__average_distance[2] / self.__readings_per_publish
             self.__distance_m[2] = distance / 100
         
+        #publish the smallest distance of the three sensors, change how this value is chosen
+        #to make cars work in environment with obstacles
         self.distance_publisher.publish(self.create_range_message(min(self.__distance_m)))
+
+        #resets average readings
         self.__average_distance = [0, 0, 0]
+        #resets "current reading", used to keep track of which reading we are on
         self.__current_reading = [0, 0, 0]
 
     def stop(self):
