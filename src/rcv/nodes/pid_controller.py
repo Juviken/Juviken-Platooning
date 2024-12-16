@@ -18,6 +18,7 @@ class PIDController:
             self.__period, # FIXME: should this be DISTANCE_PUBLISH_PERIOD?
             rospy.get_param("PID_PMIN"),
             rospy.get_param("PID_PMAX"),
+
             )
 
         self.__pid_pwm = PID(
@@ -33,7 +34,7 @@ class PIDController:
         self.__stop_vehicle_if_no_target = rospy.get_param(
             "VEHICLE_STOP_IF_NO_OBJECT_VISIBLE")
 
-        self.__can_brake = True
+        self.__can_brake = False
         self.__min_forward = rospy.get_param("MIN_FORWARD_MOTOR")
         self.__max_forward = rospy.get_param("MAX_FORWARD_MOTOR")
         self.__max_reverse = rospy.get_param("MAX_REVERSE_MOTOR")
@@ -150,7 +151,7 @@ class PIDController:
             else:
                 self.__desired_pwm = self.__idle    # Stop
                 rospy.loginfo("Cannot brake. Idling.")
-            self.__can_brake =True
+            self.__can_brake =False
         elif platoon_control_output == 0:
             self.__desired_pwm = self.__idle
             rospy.loginfo("Control_output is zero. Idling.")
