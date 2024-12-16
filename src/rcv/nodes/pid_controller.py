@@ -137,6 +137,8 @@ class PIDController:
         else:"""
         distance_error = self.__current_distance - self.__min_distance()
         platoon_control_output = self.__pid_platooning.update(distance_error)
+        current_integral = self.__pid_platooning.error_integral
+        rospy.loginfo(f"Current integral: {current_integral}")
         rospy.loginfo(f"Distance error: {distance_error}")
         rospy.loginfo(f"Platoon control output: {platoon_control_output}")
 

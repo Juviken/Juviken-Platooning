@@ -21,6 +21,9 @@ class PID:
         # Update integral term with clamping
         self.error_integral += error * self.dt
         self.error_integral = max(min(self.error_integral, self.max_integral), -self.max_integral)
+        #lOG THE INTEGRAL in ros
+        
+
         
         # Update derivative term
         self.error_derivative = (error - error_prev) / self.dt
