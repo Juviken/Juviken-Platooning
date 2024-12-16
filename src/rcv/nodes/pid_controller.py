@@ -129,40 +129,42 @@ class PIDController:
             return
 
         # Only apply PID controller if we have an object to follow,
-        # and we have enabled the flag in the launch file.
-        if not self.__has_target and self.__stop_vehicle_if_no_target:
+        # and we have enabled the flag in the launch file, 
+        # currently dissabled as triggered irregularly
+        """if not self.__has_target and self.__stop_vehicle_if_no_target:
             self.__current_pwm = self.__idle
             rospy.loginfo("No target detected. Stopping vehicle.")
-        else:
-            distance_error = self.__current_distance - self.__min_distance()
-            platoon_control_output = self.__pid_platooning.update(distance_error)
-            rospy.loginfo(f"Distance error: {distance_error}")
-            rospy.loginfo(f"Platoon control output: {platoon_control_output}")
+        else:"""
+        distance_error = self.__current_distance - self.__min_distance()
+        platoon_control_output = self.__pid_platooning.update(distance_error)
+        rospy.loginfo(f"Distance error: {distance_error}")
+        rospy.loginfo(f"Platoon control output: {platoon_control_output}")
 
-            if platoon_control_output < 0:  # Brake
-                if self.__can_brake:
-                    self.__desired_pwm = self.__max_reverse
-                    rospy.loginfo("Braking")
-                else:
-                    self.__desired_pwm = self.__idle    # Stop
-                    rospy.loginfo("Cannot brake. Idling.")
-                self.__can_brake = False
-            elif platoon_control_output == 0:
-                self.__desired_pwm = self.__idle
-                rospy.loginfo("Control_output is zero. Idling.")
+        if platoon_control_output < 0:  # Brake
+            if self.__can_brake:
+                self.__desired_pwm = self.__max_reverse
+                rospy.loginfo("Braking")
             else:
-                self.__can_brake = True
-                self.__desired_pwm = max(
-                    self.__desired_pwm + platoon_control_output,
-                    self.__min_forward) 
+                self.__desired_pwm = self.__idle    # Stop
+                rospy.loginfo("Cannot brake. Idling.")
+            self.__can_brake = False
+        elif platoon_control_output == 0:
+            self.__desired_pwm = self.__idle
+            rospy.loginfo("Control_output is zero. Idling.")
+        else:
+            self.__can_brake = True
+            self.__desired_pwm = max(
+                self.__desired_pwm + platoon_control_output,
+                self.__min_forward) 
                 
+        self.__current_pwm = int(min(
+            max(self.__desired_pwm, self.__max_reverse),
+            self.__max_forward))
 
-            self.__current_pwm = int(min(
-                max(self.__desired_pwm, self.__max_reverse),
-                self.__max_forward))
-
+        #not in outcommented else statement\/
         self.pwm_publisher.publish(self.__current_pwm)
         self.control_publisher.publish(self.__desired_pwm)
+        #not in outcommented else statement/\
 
     def stop(self):
         self.pwm_publisher.publish(self.__idle)
