@@ -181,6 +181,7 @@ class PIDController:
             self.log_file.flush()
 
     def stop(self):
+        self.log_file.close()
         self.pwm_publisher.publish(self.__idle)
 
 if __name__ == "__main__":
