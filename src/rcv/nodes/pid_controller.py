@@ -50,7 +50,7 @@ class PIDController:
         self.__is_leader = self.__id == "vehicle_0"
 
         if not self.__is_leader:
-            self.log_file = open(f"{self.__id}_pid_logs.csv", "w")
+            self.log_file = open(f"/home/user/logs/{self.__id}_pid_logs.csv", "w")
             self.log_file.write("timestamp, distance, velocity, leader_velocity, control_output, pwm\n")
 
         self.pwm_publisher = rospy.Publisher(
