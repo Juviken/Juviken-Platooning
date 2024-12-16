@@ -49,6 +49,9 @@ class PIDController:
         self.__current_leader_velocity = 0
         self.__is_leader = self.__id == "vehicle_0"
 
+        self.log_file = open(f"{self.__id}_pid_logs.csv", "w")
+        self.log_file.write("timestamp, distance, velocity, leader_velocity, control_output, pwm\n")
+
         self.pwm_publisher = rospy.Publisher(
             f"{self.__id}/pwm",
             Int32,
@@ -169,6 +172,10 @@ class PIDController:
         self.pwm_publisher.publish(self.__current_pwm)
         self.control_publisher.publish(self.__desired_pwm)
         #not in outcommented else statement/\
+        
+        # Log data
+        self.log_file.write(f"{rospy.get_time()},{self.__current_distance},{distance_error},{self.__pid_platooning.error_integral},{self.__current_pwm},{self.__current_velocity},{self.__current_leader_velocity}\n")
+        self.log_file.flush()
 
     def stop(self):
         self.pwm_publisher.publish(self.__idle)
