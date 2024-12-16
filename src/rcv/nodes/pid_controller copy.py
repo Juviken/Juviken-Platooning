@@ -114,7 +114,7 @@ class PIDController:
         """
         Callback for the leader velocity subscriber.
         """
-        #rospy.loginfo(f"Leader velocity: {msg.data}")
+        rospy.loginfo(f"Leader velocity: {msg.data}")
         self.__current_leader_velocity = msg.data
 
     def __callback_has_target(self, msg: Bool):
@@ -140,8 +140,6 @@ class PIDController:
         current_integral = self.__pid_platooning.error_integral
         rospy.loginfo(f"Current integral: {current_integral}")
         rospy.loginfo(f"Distance error: {distance_error}")
-        rospy.loginfo(f"Distance measurement timestamp: {rospy.get_time()}, distance: {self.__current_distance}")
-
         rospy.loginfo(f"Platoon control output: {platoon_control_output}")
 
         if platoon_control_output < 0:  # Brake
@@ -151,7 +149,7 @@ class PIDController:
             else:
                 self.__desired_pwm = self.__idle    # Stop
                 rospy.loginfo("Cannot brake. Idling.")
-            self.__can_brake =False
+            self.__can_brake = False
         elif platoon_control_output == 0:
             self.__desired_pwm = self.__idle
             rospy.loginfo("Control_output is zero. Idling.")
