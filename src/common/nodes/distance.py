@@ -85,7 +85,7 @@ class DistanceController:
         #to make cars work in environment with obstacles
         self.distance_publisher.publish(self.create_range_message(min(self.__distance_m)))
 
-        #resets average readings
+        #resets average readings for next publish period
         self.__average_distance = [0, 0, 0]
         #resets "current reading", used to keep track of which reading we are on
         self.__current_reading = [0, 0, 0]
