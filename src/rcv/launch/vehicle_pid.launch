@@ -9,7 +9,7 @@
     />
 
     <!-- PID platooning controller -->
-    <param name="K_PP" type="double" value="2000" />
+    <param name="K_PP" type="double" value="1000" />
     <param name="K_PI" type="double" value="50" />
     <param name="K_PD" type="double" value="50" />
     <param name="PID_PMIN" type="double" value="-100000" />
