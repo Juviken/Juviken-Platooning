@@ -43,5 +43,5 @@ Most of the steps above still hold merit but some changes have been made if you 
 
 2. Setting up the ROS workspace: 
 
-a. test
-b. whoop
+    a. test
+    b. whoop
