@@ -19,13 +19,6 @@
     <!-- Target Distance -->
     <param name="target_distance" value="1.0"/>
 
-    <!-- Note: VELOCITY_PWM_MAP_PATH and VELOCITY_PWM_MAP_POLYFIT_DEGREE -->
-    <!-- are assumed to be provided by the previously included parameter file. -->
-    <!-- For example, if you've already run or included a file that sets: -->
-    <!-- <param name="VELOCITY_PWM_MAP_PATH" value="..."/> -->
-    <!-- <param name="VELOCITY_PWM_MAP_POLYFIT_DEGREE" value="..."/> -->
-    <!-- they will be available here for use. -->
-
     <node name="mpc_controller" pkg="your_package_name" type="mpc_controller.py" output="screen">
         <!-- No private parameters here; all are read from the global namespace -->
     </node>
