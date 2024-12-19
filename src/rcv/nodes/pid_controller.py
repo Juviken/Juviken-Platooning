@@ -18,21 +18,13 @@ class PIDController:
             self.__period, # FIXME: should this be DISTANCE_PUBLISH_PERIOD?
             rospy.get_param("PID_PMIN"),
             rospy.get_param("PID_PMAX"),
-
             )
 
-        self.__pid_pwm = PID(
-            rospy.get_param("K_SP"),
-            rospy.get_param("K_SI"),
-            rospy.get_param("K_SD"),
-            self.__period, # FIXME: should this be VELOCITY_PUBLISH_PERIOD?
-            rospy.get_param("PID_SMIN"),
-            rospy.get_param("PID_SMAX"))
 
-        self.__margin_in_m = rospy.get_param("PID_PLATOONING_MARGIN_M")
-        self.__message_queue_size = rospy.get_param("MESSAGE_QUEUE_SIZE")
+        self.__margin_in_m = rospy.get_param("PID_PLATOONING_MARGIN_M") # Distance to keep from the vehicle in front
+        self.__message_queue_size = rospy.get_param("MESSAGE_QUEUE_SIZE") 
         self.__stop_vehicle_if_no_target = rospy.get_param(
-            "VEHICLE_STOP_IF_NO_OBJECT_VISIBLE")
+            "VEHICLE_STOP_IF_NO_OBJECT_VISIBLE") # Stop the vehicle if no object is visible
 
         self.__can_brake = False
         self.__min_forward = rospy.get_param("MIN_FORWARD_MOTOR")
@@ -139,35 +131,35 @@ class PIDController:
         # Only apply PID controller if we have an object to follow,
         # and we have enabled the flag in the launch file, 
         # currently dissabled as triggered irregularly
-        """if not self.__has_target and self.__stop_vehicle_if_no_target:
+        if not self.__has_target and self.__stop_vehicle_if_no_target:
             self.__current_pwm = self.__idle
             rospy.loginfo("No target detected. Stopping vehicle.")
-        else:"""
-        distance_error = self.__current_distance - self.__min_distance()
-        platoon_control_output = self.__pid_platooning.update(distance_error)
-        current_integral = self.__pid_platooning.error_integral
-        rospy.loginfo(f"Current integral: {current_integral}")
-        rospy.loginfo(f"Distance error: {distance_error}")
-        rospy.loginfo(f"Distance measurement timestamp: {rospy.get_time()}, distance: {self.__current_distance}")
-
-        rospy.loginfo(f"Platoon control output: {platoon_control_output}")
-
-        if platoon_control_output < 0:  # Brake
-            if self.__can_brake:
-                self.__desired_pwm = self.__max_reverse
-                rospy.loginfo("Braking")
-            else:
-                self.__desired_pwm = self.__idle    # Stop
-                rospy.loginfo("Cannot brake. Idling.")
-            self.__can_brake =False
-        elif platoon_control_output == 0:
-            self.__desired_pwm = self.__idle
-            rospy.loginfo("Control_output is zero. Idling.")
         else:
-            self.__can_brake = True
-            self.__desired_pwm = max(
-                self.__desired_pwm + platoon_control_output,
-                self.__min_forward) 
+            distance_error = self.__current_distance - self.__min_distance()
+            platoon_control_output = self.__pid_platooning.update(distance_error)
+            current_integral = self.__pid_platooning.error_integral
+            rospy.loginfo(f"Current integral: {current_integral}")
+            rospy.loginfo(f"Distance error: {distance_error}")
+            rospy.loginfo(f"Distance measurement timestamp: {rospy.get_time()}, distance: {self.__current_distance}")
+
+            rospy.loginfo(f"Platoon control output: {platoon_control_output}")
+
+            if platoon_control_output < 0:  # Brake
+                if self.__can_brake:
+                    self.__desired_pwm = self.__max_reverse
+                    rospy.loginfo("Braking")
+                else:
+                    self.__desired_pwm = self.__idle    # Stop
+                    rospy.loginfo("Cannot brake. Idling.")
+                self.__can_brake =False
+            elif platoon_control_output == 0:
+                self.__desired_pwm = self.__idle
+                rospy.loginfo("Control_output is zero. Idling.")
+            else:
+                self.__can_brake = True
+                self.__desired_pwm = max(
+                    self.__desired_pwm + platoon_control_output,
+                    self.__min_forward) 
                 
         self.__current_pwm = int(min(
             max(self.__desired_pwm, self.__max_reverse),

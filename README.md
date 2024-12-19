@@ -43,5 +43,16 @@ Most of the steps above still hold merit but some changes have been made if you 
 
 2. Setting up the ROS workspace: 
 
-    a. test
-    b. whoop
+    1. Clone the repository into the user directory(or just use git pull if using the same fork).
+
+    2. Run "make install" when inside the directory, same as above, the user and password is expected to be 'laff'
+
+    3. Run 'catkin_make' to compile all the ROS packages in the workspace
+
+3. Running the system: Run launch files as explained above, for example vehicle_joystick.launch on the lead vehicle and vehicle_pid.launch or mpc.launch on the follwer cars. All the relevant parameters are defined in the launch files
+
+## Other notes
+
+## Contact
+
+If you have any specific questions about the project feel free to contact me at: emiljuvikenhultman@gmail.com
