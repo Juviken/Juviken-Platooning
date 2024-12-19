@@ -2,12 +2,57 @@
     <include file="$(find rcv)/launch/vehicle.launch" pass_all_args="true" />
 
     <node
-        name="$(eval vehicle_id + '_mpc_controller')"
+        name="$(eval vehicle_id + '_pid_controller')"
         pkg="rcv"
         type="mpc_controller.py"
         respawn="true"
     />
 
-    <!-- Periods -->
-    <param name="MPC_CONTROL_PERIOD" type="double" value="0.1" />
+        <!-- MPC Parameters -->
+        <param name="horizon" value="10"/>
+        <param name="dt" value="0.1"/>
+        <param name="pwm_offset" value="50"/>
+        
+        <!-- System Parameters -->
+        <param name="mass" value="1.8"/>
+        <param name="drag" value="0.1"/>
+        <param name="nonlinear_drag" value="false"/>
+
+        <!-- Cost Weights -->
+        <param name="weight_distance" value="1.0"/>
+        <param name="weight_velocity" value="0.1"/>
+        <param name="weight_pwm" value="0.01"/>
+        <param name="weight_pwm_change" value="0.01"/>
+
+        <!-- Target Distance -->
+        <param name="target_distance" value="0.5"/>
+</launch>
+
+
+
+
+
+
+<launch>
+    <!-- Node to launch the MPC controller -->
+    <node name="mpc_controller" pkg="your_package_name" type="mpc_controller.py" output="screen">
+        <!-- MPC Parameters -->
+        <param name="horizon" value="10"/>
+        <param name="dt" value="0.1"/>
+        <param name="pwm_offset" value="50"/>
+        
+        <!-- System Parameters -->
+        <param name="mass" value="1.8"/>
+        <param name="drag" value="0.1"/>
+        <param name="nonlinear_drag" value="false"/>
+
+        <!-- Cost Weights -->
+        <param name="weight_distance" value="1.0"/>
+        <param name="weight_velocity" value="0.1"/>
+        <param name="weight_pwm" value="0.01"/>
+        <param name="weight_pwm_change" value="0.01"/>
+
+        <!-- Target Distance -->
+        <param name="target_distance" value="0.5"/>
+    </node>
 </launch>
