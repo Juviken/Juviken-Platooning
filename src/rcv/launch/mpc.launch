@@ -1,0 +1,13 @@
+<launch>
+    <include file="$(find rcv)/launch/vehicle.launch" pass_all_args="true" />
+
+    <node
+        name="$(eval vehicle_id + '_mpc_controller')"
+        pkg="rcv"
+        type="mpc_controller.py"
+        respawn="true"
+    />
+
+    <!-- Periods -->
+    <param name="MPC_CONTROL_PERIOD" type="double" value="0.1" />
+</launch>
