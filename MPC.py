@@ -12,7 +12,7 @@ class MPCController:
         self.u_bounds = (-255, 255)  # PWM limits
 
         # System parameters (example for velocity control)
-        self.mass = 1.0  # Mass of the vehicle
+        self.mass = 1.8  # Mass of the vehicle
         self.drag = 0.1  # Drag coefficient
 
         # Target velocity
