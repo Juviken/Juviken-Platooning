@@ -1,58 +1,32 @@
 <launch>
-    <include file="$(find rcv)/launch/vehicle.launch" pass_all_args="true" />
+    <!-- MPC Parameters -->
+    <param name="horizon" value="10"/>
+    <param name="dt" value="0.1"/>
+    <param name="v_des_min" value="0.0"/>
+    <param name="v_des_max" value="2.0"/>
 
-    <node
-        name="$(eval vehicle_id + '_pid_controller')"
-        pkg="rcv"
-        type="mpc_controller.py"
-        respawn="true"
-    />
+    <!-- System Parameters -->
+    <param name="mass" value="1.8"/>
+    <param name="drag" value="0.1"/>
+    <param name="nonlinear_drag" value="false"/>
 
-        <!-- MPC Parameters -->
-        <param name="horizon" value="10"/>
-        <param name="dt" value="0.1"/>
-        <param name="pwm_offset" value="50"/>
-        
-        <!-- System Parameters -->
-        <param name="mass" value="1.8"/>
-        <param name="drag" value="0.1"/>
-        <param name="nonlinear_drag" value="false"/>
+    <!-- Cost Weights -->
+    <param name="weight_distance" value="1.0"/>
+    <param name="weight_velocity_error" value="0.5"/>
+    <param name="weight_v_des" value="0.01"/>
+    <param name="weight_v_des_change" value="0.01"/>
 
-        <!-- Cost Weights -->
-        <param name="weight_distance" value="1.0"/>
-        <param name="weight_velocity" value="0.1"/>
-        <param name="weight_pwm" value="0.01"/>
-        <param name="weight_pwm_change" value="0.01"/>
+    <!-- Target Distance -->
+    <param name="target_distance" value="1.0"/>
 
-        <!-- Target Distance -->
-        <param name="target_distance" value="0.5"/>
-</launch>
+    <!-- Note: VELOCITY_PWM_MAP_PATH and VELOCITY_PWM_MAP_POLYFIT_DEGREE -->
+    <!-- are assumed to be provided by the previously included parameter file. -->
+    <!-- For example, if you've already run or included a file that sets: -->
+    <!-- <param name="VELOCITY_PWM_MAP_PATH" value="..."/> -->
+    <!-- <param name="VELOCITY_PWM_MAP_POLYFIT_DEGREE" value="..."/> -->
+    <!-- they will be available here for use. -->
 
-
-
-
-
-
-<launch>
-    <!-- Node to launch the MPC controller -->
     <node name="mpc_controller" pkg="your_package_name" type="mpc_controller.py" output="screen">
-        <!-- MPC Parameters -->
-        <param name="horizon" value="10"/>
-        <param name="dt" value="0.1"/>
-        <param name="pwm_offset" value="50"/>
-        
-        <!-- System Parameters -->
-        <param name="mass" value="1.8"/>
-        <param name="drag" value="0.1"/>
-        <param name="nonlinear_drag" value="false"/>
-
-        <!-- Cost Weights -->
-        <param name="weight_distance" value="1.0"/>
-        <param name="weight_velocity" value="0.1"/>
-        <param name="weight_pwm" value="0.01"/>
-        <param name="weight_pwm_change" value="0.01"/>
-
-        <!-- Target Distance -->
-        <param name="target_distance" value="0.5"/>
+        <!-- No private parameters here; all are read from the global namespace -->
     </node>
 </launch>
