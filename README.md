@@ -37,9 +37,9 @@ Arguments can of course be adjusted as needed.
 # Updates -Juviken-Platooning
 
 ## Getting the project started quick guide
-Most of the steps above still hold merit but some changes have been made if you plan on using the files from Juviken-Platooning instead of LAFF-Platooning which we reccommend. Please read the above information before moving on to these steps. 
+Most of the steps above still hold merit but some changes have been made if you plan on using the files from Juviken-Platooning instead of LAFF-Platooning which we recommend. Please read the above information before moving on to these steps. 
 
-1. Internet connectivity: an update from LAFF-Platooning is that the cars now use NetworkManager as the handler for wlan0. In it's current form the default connection is to the "Vroom" network. If a change of network is needed this can be handled using NetworkManager's default connection settings. After connecting the RPi units to the desired network you can conenct to them from your own computer using ssh: ssh laff@ip-of-car, laff is the expected user on the units. 
+1. Internet connectivity: an update from LAFF-Platooning is that the cars now use NetworkManager as the handler for wlan0. In it's current form the default connection is to the "Vroom" network. If a change of network is needed this can be handled using NetworkManager's default connection settings. After connecting the RPi units to the desired network you can connect to them from your own computer using ssh: ssh laff@ip-of-car, laff is the expected user on the units and password is 'laff'.
 
 2. Setting up the ROS workspace: 
 
