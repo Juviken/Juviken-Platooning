@@ -57,4 +57,4 @@ Most of the steps above still hold merit but some changes have been made if you 
 
 ## Contact
 
-If you have any specific questions about the project feel free to contact me at: emiljuvikenhultman@gmail.com
+If you have any specific questions about the project feel free to contact us at: emiljuvikenhultman@gmail.com or achilles.karassavas@gmail.com.
