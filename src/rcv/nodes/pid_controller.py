@@ -173,7 +173,13 @@ class PIDController:
         # Log data
             if self.__is_leader:
     
-                self.log_file.write(f"{rospy.get_time()},{self.__current_distance},{distance_error},{self.__pid_platooning.error_integral},{self.__current_pwm},{self.__current_velocity},{self.__current_leader_velocity}\n")
+                self.log_file.write(f"{rospy.get_time()},
+                                    {self.__current_distance},
+                                    {distance_error},
+                                    {self.__pid_platooning.error_integral},
+                                    {self.__current_pwm},
+                                    {self.__current_velocity},
+                                    {self.__current_leader_velocity}\n")
                 self.log_file.flush()
 
     def stop(self):
