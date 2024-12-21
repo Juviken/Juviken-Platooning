@@ -1,8 +1,21 @@
 <launch>
+    <!-- Declare an argument to control whether to record data -->
+    <arg name="record_data" default="true" />
+
+    <!-- Include any shared launch settings -->
     <include file="$(find rcv)/launch/shared.launch" pass_all_args="true" />
 
-    <node name="$(eval vehicle_id + '_joystick_controller_node')" pkg="rcv" type="joystick_controller.py" respawn="true" />
-    <node name="$(eval vehicle_id + '_ds4_controller_node')" pkg="ds4_driver" type="ds4_driver_node.py" respawn="true">
+    <!-- Joystick controller node -->
+    <node name="$(eval vehicle_id + '_joystick_controller_node')"
+          pkg="rcv"
+          type="joystick_controller.py"
+          respawn="true" />
+
+    <!-- DS4 driver node -->
+    <node name="$(eval vehicle_id + '_ds4_controller_node')"
+          pkg="ds4_driver"
+          type="ds4_driver_node.py"
+          respawn="true">
         <!-- Hidraw backend does not work with DS4 -->
         <param name="~backend" type="string" value="bluetooth" />
         <param name="~use_standard_msgs" type="boolean" value="true" />
@@ -11,12 +24,31 @@
     <!-- Publisher periods -->
     <param name="JOYSTICK_CONTROL_PERIOD" type="double" value="0.1" />
 
-    <!-- Motor node -->
+    <!-- Motor node parameters -->
     <param name="AUTO_PILOT_PWM_MOTOR" type="int" value="750000" />
     <param name="MAX_FORWARD_MOTOR" type="int" value="780000" />
     <param name="MIN_FORWARD_MOTOR" type="int" value="715000" />
     <param name="MAX_RIGHT_ANGLE" type="int" value="780000" />
     <param name="MAX_LEFT_ANGLE" type="int" value="360000" />
 
-    <param name="RECORD_DATA" type="BOOL" value="false" />
+    <!-- A parameter for reference (not strictly necessary here) -->
+    <param name="RECORD_DATA" type="bool" value="false" />
+
+    <!-- Conditionally launch data loggers if record_data is set to true -->
+    <group if="$(arg record_data)">
+        <!-- Immediate Data Logger Node -->
+        <node name="$(eval vehicle_id + '_immediate_data_logger')"
+              pkg="rcv"
+              type="immediate_data_logger.py"
+              respawn="true"
+              output="screen" />
+
+        <!-- Approximate Time Synchronizer Logger Node -->
+        <node name="$(eval vehicle_id + '_approx_data_logger')"
+              pkg="rcv"
+              type="approx_data_logger.py"
+              respawn="true"
+              output="screen" />
+    </group>
+
 </launch>
