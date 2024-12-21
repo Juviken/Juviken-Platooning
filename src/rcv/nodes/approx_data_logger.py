@@ -5,7 +5,6 @@ import message_filters
 from std_msgs.msg import Int32, Float32, Bool
 from sensor_msgs.msg import Joy, Range
 
-
 class ApproxDataLogger:
     def __init__(self):
         # Fetch parameters
@@ -17,49 +16,45 @@ class ApproxDataLogger:
         rospy.loginfo(f"[ApproxDataLogger] Logging to {filename}")
         self.file = open(filename, "w")
 
-        # Prepare the subscriber list for message_filters
-        # Common subscribers: pwm, velocity, steering
+        # Common subscribers for both follower & non-follower
         sub_pwm      = message_filters.Subscriber(f"/{self.vehicle_id}/pwm",            Int32)
         sub_velocity = message_filters.Subscriber(f"/{self.vehicle_id}/velocity",       Float32)
         sub_steering = message_filters.Subscriber(f"/{self.vehicle_id}/steering_angle", Int32)
 
-        # We'll store them in a list that we'll pass to the synchronizer
         subscribers_list = [sub_pwm, sub_velocity, sub_steering]
 
         if not self.follower_car:
-            # Not follower -> also track /joy
-            # Write CSV header accordingly
+            # Not a follower -> also track /joy
             self.file.write("stamp,pwm,velocity,steering_angle,joy_axes,joy_buttons\n")
 
             sub_joy = message_filters.Subscriber("/joy", Joy)
             subscribers_list.append(sub_joy)
 
-            # Create ATS with 4 topics
+            # Sync with 4 topics total
             self.sync = message_filters.ApproximateTimeSynchronizer(
                 subscribers_list,
                 queue_size=10,
                 slop=0.1,
-                allow_headerless=True  # needed since pwm/velocity/steering are headerless
+                allow_headerless=True
             )
             self.sync.registerCallback(self.callback_not_follower)
 
         else:
             # FOLLOWER_CAR == True -> track distance, has_target, target_center_offset, control
-            # Write CSV header
+            # Here, distance is Range, offset is Int32, control is Float32
             self.file.write(
                 "stamp,pwm,velocity,steering_angle,distance,has_target,"
                 "target_center_offset,control\n"
             )
 
-            sub_distance  = message_filters.Subscriber(f"/{self.vehicle_id}/distance",             Range)
-            sub_has_target= message_filters.Subscriber(f"/{self.vehicle_id}/has_target",           Bool)
-            sub_offset    = message_filters.Subscriber(f"/{self.vehicle_id}/target_center_offset", Int32)
-            sub_control   = message_filters.Subscriber(f"/{self.vehicle_id}/control",              Float32)
+            sub_distance   = message_filters.Subscriber(f"/{self.vehicle_id}/distance",             Range)
+            sub_has_target = message_filters.Subscriber(f"/{self.vehicle_id}/has_target",           Bool)
+            sub_offset     = message_filters.Subscriber(f"/{self.vehicle_id}/target_center_offset", Int32)
+            sub_control    = message_filters.Subscriber(f"/{self.vehicle_id}/control",              Float32)
 
-            # Add them to the list, so we have 7 topics total
+            # Add them, so we have 7 topics total
             subscribers_list.extend([sub_distance, sub_has_target, sub_offset, sub_control])
 
-            # Create ATS with 7 topics
             self.sync = message_filters.ApproximateTimeSynchronizer(
                 subscribers_list,
                 queue_size=10,
@@ -68,17 +63,16 @@ class ApproxDataLogger:
             )
             self.sync.registerCallback(self.callback_follower)
 
-    # ------------------------------------------------------
-    #  Callbacks for Not-Follower and Follower
-    # ------------------------------------------------------
+    # -------------------------------------
+    # Callbacks
+    # -------------------------------------
 
     def callback_not_follower(self, pwm_msg, velocity_msg, steering_msg, joy_msg):
-        """Approx. sync callback when not a follower."""
+        """Called when not a follower car."""
         now = rospy.Time.now().to_sec()
-
-        pwm_val    = pwm_msg.data
-        vel_val    = velocity_msg.data
-        steer_val  = steering_msg.data
+        pwm_val   = pwm_msg.data
+        vel_val   = velocity_msg.data
+        steer_val = steering_msg.data
 
         joy_axes_str    = str(list(joy_msg.axes))
         joy_buttons_str = str(list(joy_msg.buttons))
@@ -89,16 +83,18 @@ class ApproxDataLogger:
 
     def callback_follower(self, pwm_msg, velocity_msg, steering_msg,
                           distance_msg, has_target_msg, offset_msg, control_msg):
-        """Approx. sync callback when FOLLOWER_CAR == True."""
+        """Called when FOLLOWER_CAR == True."""
         now = rospy.Time.now().to_sec()
 
-        pwm_val      = pwm_msg.data
-        vel_val      = velocity_msg.data
-        steer_val    = steering_msg.data
-        distance_val = distance_msg.data
-        has_target_val = has_target_msg.data
-        offset_val     = offset_msg.data
-        control_val    = control_msg.data
+        pwm_val   = pwm_msg.data
+        vel_val   = velocity_msg.data
+        steer_val = steering_msg.data
+
+        # Range message => .range
+        distance_val    = distance_msg.range
+        has_target_val  = has_target_msg.data
+        offset_val      = offset_msg.data
+        control_val     = control_msg.data
 
         line = (
             f"{now},{pwm_val},{vel_val},{steer_val},"
@@ -109,7 +105,6 @@ class ApproxDataLogger:
 
     def on_shutdown(self):
         self.file.close()
-
 
 if __name__ == "__main__":
     rospy.init_node("approx_data_logger", anonymous=True)
