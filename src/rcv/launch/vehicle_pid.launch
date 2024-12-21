@@ -1,55 +1,54 @@
 <launch>
-    <!-- Include shared setup -->
-    <include file="$(find rcv)/launch/shared.launch" pass_all_args="true" />
+    <!-- Load the common vehicle launch, passing all args (including vehicle_id) -->
+    <include file="$(find rcv)/launch/vehicle.launch" pass_all_args="true" />
 
-    <!-- Make sure we have a vehicle_id argument somewhere 
-         or you can set it directly here as a param -->
-    <!-- Example: <param name="VEHICLE_ID" type="string" value="vehicle_1" /> -->
-
-    <!-- Set the FOLLOWER_CAR param to true for follower vehicles -->
+    <!-- Mark this vehicle as a follower -->
     <param name="FOLLOWER_CAR" type="bool" value="true" />
 
-    <!-- Joystick controller node -->
-    <node name="$(eval vehicle_id + '_joystick_controller_node')"
-          pkg="rcv"
-          type="joystick_controller.py"
-          respawn="true" />
+    <!-- PID platooning controller node -->
+    <node
+        name="$(eval vehicle_id + '_pid_controller')"
+        pkg="rcv"
+        type="pid_controller.py"
+        respawn="true"
+    />
 
-    <!-- DS4 controller node -->
-    <node name="$(eval vehicle_id + '_ds4_controller_node')"
-          pkg="ds4_driver"
-          type="ds4_driver_node.py"
-          respawn="true">
-        <!-- Hidraw backend does not work with DS4 -->
-        <param name="~backend" type="string" value="bluetooth" />
-        <param name="~use_standard_msgs" type="boolean" value="true" />
-    </node>
+    <!-- PID parameters for platooning controller -->
+    <param name="K_PP"                 type="double" value="1250" />
+    <param name="K_PI"                 type="double" value="10" />
+    <param name="K_PD"                 type="double" value="100" />
+    <param name="PID_PMIN"             type="double" value="-100000" />
+    <param name="PID_PMAX"             type="double" value="15000" />
+    <param name="PID_PMAX_INTEGRAL"    type="double" value="500" />
+    <param name="PID_PLATOONING_MARGIN_M" type="double" value="0.3" />
 
-    <!-- Publisher periods -->
-    <param name="JOYSTICK_CONTROL_PERIOD" type="double" value="0.1" />
+    <!-- PID parameters for speed controller -->
+    <param name="K_SP"                 type="double" value="1" />
+    <param name="K_SI"                 type="double" value="20" />
+    <param name="K_SD"                 type="double" value="0.002" />
+    <param name="PID_SMIN"             type="double" value="-20000" />
+    <param name="PID_SMAX"             type="double" value="20000" />
+    <param name="PID_SPEED_REFERENCE"  type="double" value="10" />
 
-    <!-- Motor node parameters -->
-    <param name="AUTO_PILOT_PWM_MOTOR" type="int" value="750000" />
-    <param name="MAX_FORWARD_MOTOR" type="int" value="780000" />
-    <param name="MIN_FORWARD_MOTOR" type="int" value="715000" />
-    <param name="MAX_RIGHT_ANGLE" type="int" value="780000" />
-    <param name="MAX_LEFT_ANGLE" type="int" value="360000" />
+    <!-- Control loop period -->
+    <param name="PID_CONTROL_PERIOD" type="double" value="0.01" />
 
-    <!-- If you have a param controlling data recording, you can still keep it -->
-    <param name="RECORD_DATA" type="bool" value="true" />
+    <!-- Launch the immediate logger node (subscribes to the follower topics if FOLLOWER_CAR is true) -->
+    <node
+        name="$(eval vehicle_id + '_immediate_data_logger')"
+        pkg="rcv"
+        type="immediate_data_logger.py"
+        respawn="true"
+        output="screen"
+    />
 
-    <!-- Immediate Data Logger -->
-    <node name="$(eval vehicle_id + '_immediate_data_logger')"
-          pkg="rcv"
-          type="immediate_data_logger.py"
-          respawn="true"
-          output="screen" />
-
-    <!-- Approximate Time Synchronizer Data Logger -->
-    <node name="$(eval vehicle_id + '_approx_data_logger')"
-          pkg="rcv"
-          type="approx_data_logger.py"
-          respawn="true"
-          output="screen" />
+    <!-- Launch the approximate time synchronizer logger node -->
+    <node
+        name="$(eval vehicle_id + '_approx_data_logger')"
+        pkg="rcv"
+        type="approx_data_logger.py"
+        respawn="true"
+        output="screen"
+    />
 
 </launch>
