@@ -3,7 +3,8 @@
 import rospy
 import message_filters
 from std_msgs.msg import Int32, Float32, Bool
-from sensor_msgs.msg import Joy
+from sensor_msgs.msg import Joy, Range
+
 
 class ApproxDataLogger:
     def __init__(self):
@@ -50,10 +51,10 @@ class ApproxDataLogger:
                 "target_center_offset,control\n"
             )
 
-            sub_distance  = message_filters.Subscriber(f"/{self.vehicle_id}/distance",             Float32)
+            sub_distance  = message_filters.Subscriber(f"/{self.vehicle_id}/distance",             Range)
             sub_has_target= message_filters.Subscriber(f"/{self.vehicle_id}/has_target",           Bool)
-            sub_offset    = message_filters.Subscriber(f"/{self.vehicle_id}/target_center_offset", Float32)
-            sub_control   = message_filters.Subscriber(f"/{self.vehicle_id}/control",              Int32)
+            sub_offset    = message_filters.Subscriber(f"/{self.vehicle_id}/target_center_offset", Int32)
+            sub_control   = message_filters.Subscriber(f"/{self.vehicle_id}/control",              Float32)
 
             # Add them to the list, so we have 7 topics total
             subscribers_list.extend([sub_distance, sub_has_target, sub_offset, sub_control])

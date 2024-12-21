@@ -2,7 +2,7 @@
 
 import rospy
 from std_msgs.msg import Int32, Float32, Bool
-from sensor_msgs.msg import Joy
+from sensor_msgs.msg import Joy, Range
 
 
 class ImmediateDataLogger:
@@ -54,10 +54,10 @@ class ImmediateDataLogger:
             rospy.Subscriber("/joy", Joy, self.callback_joy)
         else:
             # Subscribe to follower-specific topics
-            rospy.Subscriber(f"/{self.vehicle_id}/distance",              Float32, self.callback_distance)
+            rospy.Subscriber(f"/{self.vehicle_id}/distance",              Range, self.callback_distance)
             rospy.Subscriber(f"/{self.vehicle_id}/has_target",            Bool,    self.callback_has_target)
-            rospy.Subscriber(f"/{self.vehicle_id}/target_center_offset",  Float32, self.callback_target_center_offset)
-            rospy.Subscriber(f"/{self.vehicle_id}/control",               Int32,   self.callback_control)
+            rospy.Subscriber(f"/{self.vehicle_id}/target_center_offset",  Int32, self.callback_target_center_offset)
+            rospy.Subscriber(f"/{self.vehicle_id}/control",               Float32,   self.callback_control)
 
     # ------------------- Callbacks ------------------- #
     def callback_pwm(self, msg):
