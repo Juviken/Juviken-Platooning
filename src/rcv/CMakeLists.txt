@@ -22,5 +22,7 @@ catkin_install_python(PROGRAMS
   nodes/bidirectional_controller.py
   nodes/joystick_controller.py
   nodes/velocity_pwm_mapper.py
+  nodes/approx_data_logger.py
+  nodes/immediate_data_logger.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
