@@ -29,6 +29,14 @@ class MPCController:
         self.drag = rospy.get_param('drag', 0.1)
         self.nonlinear_drag = rospy.get_param('nonlinear_drag', False)
 
+        self.v_history = [0.0, 0.0]  # Initialize velocity history (v(t-1), v(t-2))
+        self.u_history = [0.0, 0.0]  # Initialize PWM history (u(t-1), u(t-2))
+        # ARX coefficients
+        self.a1 = 0.972869359263652
+        self.a2 = -0.023137644767055
+        self.b1 = -0.000000159414697
+        self.b2 = 0.000000239463951
+
         # Cost weights
         self.weight_distance = rospy.get_param('weight_distance', 1.0)
         self.weight_velocity_error = rospy.get_param('weight_velocity_error', 0.5)
@@ -135,14 +143,34 @@ class MPCController:
     def __callback_has_target(self, msg: Bool):
         self.__has_target = msg.data
 
-    def system_dynamics(self, v, pwm):
-        # Convert PWM directly to force (simple model)
-        force = float(pwm)  
-        if self.nonlinear_drag:
-            dv = (force / self.mass - self.drag * (v**2)) * self.dt
-        else:
-            dv = (force / self.mass - self.drag * v) * self.dt
-        return v + dv
+class RC_Car_Dynamics:
+    def __init__(self, dt, mass, drag, nonlinear_drag=True):
+        self.dt = dt
+        self.mass = mass
+        self.drag = drag
+        self.nonlinear_drag = nonlinear_drag
+        self.v_history = [0.0, 0.0]  # Initialize velocity history (v(t-1), v(t-2))
+        self.u_history = [0.0, 0.0]  # Initialize PWM history (u(t-1), u(t-2))
+        # ARX coefficients
+        self.a1 = 0.972869359263652
+        self.a2 = -0.023137644767055
+        self.b1 = -0.000000159414697
+        self.b2 = 0.000000239463951
+
+    def system_dynamics(self, pwm):
+        # Update the ARX model
+        v_t1, v_t2 = self.v_history
+        u_t1, u_t2 = self.u_history
+
+        # Compute the next velocity using the ARX model
+        v_t = (self.a1 * v_t1 + self.a2 * v_t2 +
+               self.b1 * u_t1 + self.b2 * u_t2)
+
+        # Update history
+        self.v_history = [v_t, v_t1]
+        self.u_history = [pwm, u_t1]
+
+        return v_t
 
     def mpc_cost(self, v_des_sequence):
         v_des_sequence = np.clip(v_des_sequence, self.v_des_min, self.v_des_max)
@@ -155,7 +183,7 @@ class MPCController:
             # Map desired velocity to PWM
             pwm = self.__velocity_mapper.map_velocity_to_pwm(v_des)
             # System forward simulation
-            v = self.system_dynamics(v, pwm)
+            v = self.system_dynamics(pwm)
             d += v * self.dt
 
             # Cost on distance error
@@ -170,6 +198,7 @@ class MPCController:
             prev_v_des = v_des
 
         return cost
+
 
     def solve_mpc(self):
         v0 = np.full(self.horizon, self.__current_velocity)
