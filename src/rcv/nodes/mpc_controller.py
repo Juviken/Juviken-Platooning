@@ -8,6 +8,10 @@ from rcv.velocity_mapper import VelocityMapper
 from scipy.optimize import minimize
 
 class MPCController:
+    """_summary_
+    This controller is untested and the parameters need to be tuned using real system.
+    Comments labeled #FIX ME indicate parameters that need to be tuned, however more may need tuning
+    """
     def __init__(self):
         # Vehicle ID
         self.__id = rospy.get_param("VEHICLE_ID")
@@ -16,21 +20,24 @@ class MPCController:
         self.__is_leader = (self.__id == "vehicle_0")
 
         # Control period for the MPC solver
-        self.__period = rospy.get_param("MPC_CONTROL_PERIOD", 0.1)  # Example default: 0.1 seconds
+        # Should be fast enough to complete optimization, but not tested
+        #FIX ME
+        self.__period = rospy.get_param("MPC_CONTROL_PERIOD", 0.1)  #default 0.1
 
         # MPC parameters
+        #FIX ME
         self.horizon = rospy.get_param('horizon', 10)      
         self.dt = rospy.get_param('dt', 0.1)
         self.v_des_min = rospy.get_param('v_des_min', 0.0)
         self.v_des_max = rospy.get_param('v_des_max', 2.0)
 
-        # System parameters
+        # System parameters - Taken from previous work
         self.mass = rospy.get_param('mass', 1.8)
         self.drag = rospy.get_param('drag', 0.1)
         self.nonlinear_drag = rospy.get_param('nonlinear_drag', False)
 
-        self.v_history = [0.0, 0.0]  # Initialize velocity history (v(t-1), v(t-2))
-        self.u_history = [0.0, 0.0]  # Initialize PWM history (u(t-1), u(t-2))
+        self.v_history = [0.0, 0.0]  # Initialize velocity history (v(t-1), v(t-2)), length depends on model parameters
+        self.u_history = [0.0, 0.0]  # Initialize PWM history (u(t-1), u(t-2)), length depends on model parameters
         # ARX coefficients
         self.a1 = 0.972869359263652
         self.a2 = -0.023137644767055
@@ -38,15 +45,18 @@ class MPCController:
         self.b2 = 0.000000239463951
 
         # Cost weights
+        #NOT TUNED, 
+        #FIX ME
         self.weight_distance = rospy.get_param('weight_distance', 1.0)
         self.weight_velocity_error = rospy.get_param('weight_velocity_error', 0.5)
         self.weight_v_des = rospy.get_param('weight_v_des', 0.01)
         self.weight_v_des_change = rospy.get_param('weight_v_des_change', 0.01)
 
-        # Target distance
-        self.target_distance = rospy.get_param('target_distance', 1.0)
+        # Target distance, change as needed
+        self.target_distance = rospy.get_param('target_distance', 0.5)
 
         # Velocity Mapper parameters (global)
+        # See original project for documentation
         map_path = rospy.get_param('VELOCITY_PWM_MAP_PATH')
         poly_degree = rospy.get_param('VELOCITY_PWM_MAP_POLYFIT_DEGREE')
         self.__idle = rospy.get_param("IDLE_MOTOR")
@@ -63,9 +73,10 @@ class MPCController:
             self.__max_forward
         )
 
+        #Chosen arbitrarily for now
         self.__message_queue_size = rospy.get_param("MESSAGE_QUEUE_SIZE", 10)
 
-        # State variables
+        # State variables, initialization.
         self.__current_distance = 0.0
         self.__current_velocity = 0.0
         self.__current_leader_velocity = 0.0
@@ -122,6 +133,8 @@ class MPCController:
         rospy.Timer(rospy.Duration(self.__period), self.__perform_step)
 
         # Logging (optional, similar to PID)
+        #FIX ME
+        # Not tested, saved data might need to be changed
         if not self.__is_leader:
             self.log_file = open(f"/home/user/logs/{self.__id}_mpc_logs.csv", "w")
             self.log_file.write("timestamp,distance,velocity,leader_velocity,desired_v_des,pwm\n")
@@ -144,6 +157,10 @@ class MPCController:
         self.__has_target = msg.data
 
 class RC_Car_Dynamics:
+    """_summary_
+    Based on data collected using PID controller on the cars. Check extras for data
+    ARX model parameters estimated using Matlab´s system identification toolbox.
+    """
     def __init__(self, dt, mass, drag, nonlinear_drag=True):
         self.dt = dt
         self.mass = mass
